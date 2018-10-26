@@ -1,0 +1,43 @@
+version: '3'
+services:
+    # ------> postgre ------>
+    db:
+      container_name: 'postgresESGI'
+      image: postgres
+      restart: always
+      ports:
+        - "5433:5433"
+        # (HOST:CONTAINER)
+      volumes:
+        - ../.database/heartstone:/var/lib/postgresql/data
+      environment:
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin
+            POSTGRES_DB: djangoprojet
+    # <------ postgre <------
+    # ------> app ------>
+    web:
+      build: .
+      command: python manage.py runserver 0.0.0.0:8005
+      restart: always
+      volumes:
+        - .:/app
+        # (HOST:CONTAINER)
+      ports:
+        - "8005:8005"
+        # (HOST:CONTAINER)
+      depends_on:
+        - db
+    # <------ app <------
+    # ------> adminer ------>
+    adminer:
+      container_name: adminerESGI
+      image: adminer:latest
+      restart: always
+      environment:
+        ADMINER_PLUGINS: tables-filter tinymce
+        ADMINER_DESIGN: pepa-linha
+      ports:
+        - 8085:8085
+    # <------ adminer <------
+
